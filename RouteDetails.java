@@ -11,42 +11,146 @@ public class RouteDetails {
     private static final String DB_PASSWORD = "moni2626";
 
     public static void open() {
-        // Create the frame for Route Details Finder
+        // Set the look and feel of the UI for better consistency across platforms
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Create and setup the frame for Route Details Finder
         JFrame frame = new JFrame("Route Details Finder");
-        frame.setSize(500, 400);
+        frame.setSize(900, 700);  // Adjusted frame size for better content display
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);  // Center the frame on the screen
+        frame.setResizable(false);
 
-        // Create the panel
-        JPanel panel = new JPanel();
-        panel.setLayout(new BorderLayout(10, 10));
-        frame.add(panel);
+        // Create a JPanel with GridBagLayout for better control of component placement
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Added margin for better spacing
 
-        // Create input and output components
+        // Title Label
+        JLabel titleLabel = new JLabel("Route Details Finder");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(0, 122, 204));  // Vibrant color for title
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 0, 30, 0);  // Spacing after the title
+        panel.add(titleLabel, gbc);
+
+        // Route Name Label and TextField
         JLabel routeLabel = new JLabel("Enter Route Name:");
-        JTextField routeField = new JTextField();
+        routeLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        panel.add(routeLabel, gbc);
+
+        JTextField routeField = new JTextField(30);  // Adjusted width of the text field
+        routeField.setFont(new Font("Arial", Font.PLAIN, 16));
+        routeField.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;  // Allow the field to span two columns
+        panel.add(routeField, gbc);
+
+        // Search Button
         JButton searchButton = new JButton("Search");
-        JButton backButton = new JButton("Back");
-        JButton loginButton = new JButton("Login");
+        searchButton.setFont(new Font("Arial", Font.BOLD, 18));
+        searchButton.setBackground(new Color(0, 122, 204));
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBorderPainted(false);
+        searchButton.setFocusPainted(false);
+        searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover effect for Search button
+        searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchButton.setBackground(new Color(0, 150, 255)); // Lighter on hover
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchButton.setBackground(new Color(0, 122, 204)); // Default color
+            }
+        });
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;  // Button spans all columns
+        panel.add(searchButton, gbc);
+
+        // Result Area for displaying the route details
         JTextArea resultArea = new JTextArea();
-        resultArea.setEditable(false); // Make the result area read-only
+        resultArea.setEditable(false);  // Make the result area read-only
         resultArea.setLineWrap(true);
         resultArea.setWrapStyleWord(true);
+        resultArea.setFont(new Font("Arial", Font.PLAIN, 16));
+        resultArea.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        JScrollPane scrollPane = new JScrollPane(resultArea); // Added scroll pane for better result area visibility
+        scrollPane.setPreferredSize(new Dimension(700, 200));  // Adjusted size for result area
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 0, 20, 0);  // Added space between result area and buttons
+        panel.add(scrollPane, gbc);
 
-        // Organize components in the panel
-        JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new FlowLayout());
-        inputPanel.add(routeLabel);
-        inputPanel.add(routeField);
-        inputPanel.add(searchButton);
-
+        // Buttons panel (Back and Login buttons)
         JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new FlowLayout());
-        buttonPanel.add(backButton);
-        buttonPanel.add(loginButton);  // Added login button
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-        panel.add(inputPanel, BorderLayout.NORTH);
-        panel.add(new JScrollPane(resultArea), BorderLayout.CENTER);
-        panel.add(buttonPanel, BorderLayout.SOUTH);
+        // Back Button
+        JButton backButton = new JButton("Back");
+        backButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        backButton.setBackground(Color.WHITE);
+        backButton.setForeground(new Color(0, 122, 204));
+        backButton.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        backButton.setFocusPainted(false);
+        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover effect for Back button
+        backButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                backButton.setBackground(new Color(0, 122, 204));  // Lighter on hover
+                backButton.setForeground(Color.WHITE);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                backButton.setBackground(Color.WHITE);  // Default color
+                backButton.setForeground(new Color(0, 122, 204));  // Default text color
+            }
+        });
+
+        // Login Button
+        JButton loginButton = new JButton("Login");
+        loginButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        loginButton.setBackground(new Color(255, 255, 255));
+        loginButton.setForeground(new Color(0, 122, 204));
+        loginButton.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        loginButton.setFocusPainted(false);
+        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover effect for Login button
+        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(new Color(0, 122, 204));  // Lighter on hover
+                loginButton.setForeground(Color.WHITE);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(Color.WHITE);  // Default color
+                loginButton.setForeground(new Color(0, 122, 204));  // Default text color
+            }
+        });
+
+        buttonPanel.add(backButton);
+        buttonPanel.add(loginButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 3;
+        panel.add(buttonPanel, gbc);
 
         // Add action listener for the search button
         searchButton.addActionListener(new ActionListener() {
@@ -80,6 +184,7 @@ public class RouteDetails {
         });
 
         // Show the frame
+        frame.add(panel);
         frame.setVisible(true);
     }
 
