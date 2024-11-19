@@ -1,4 +1,6 @@
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
@@ -154,6 +156,15 @@ public class BookingRoutesJoin {
         gbc.insets = new Insets(10, 0, 0, 0);
         panel.add(goToLoginButton, gbc);
 
+        // Add action listener to go to login page button
+        goToLoginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setVisible(false); // Hide the current window
+                login.main(null); // Assuming you have a Login class
+            }
+        });
+
         frame.add(panel);
         frame.setVisible(true);
     }
@@ -162,3 +173,4 @@ public class BookingRoutesJoin {
         open();
     }
 }
+
