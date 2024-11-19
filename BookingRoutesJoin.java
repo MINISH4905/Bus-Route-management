@@ -1,211 +1,138 @@
+import java.awt.*;
 import java.sql.*;
-import java.util.Scanner;
+import javax.swing.*;
 
 public class BookingRoutesJoin {
+    // Database connection details
     private static final String DB_URL = "jdbc:mysql://localhost:3306/bus"; // Update with your DB URL
     private static final String DB_USER = "root"; // Update with your DB username
     private static final String DB_PASSWORD = "moni2626"; // Update with your DB password
 
-    public static void open(Scanner scanner) {
-        // Prompt user for booking ID to update
-        System.out.println("=== Update Booking Details ===");
-        
-        // Get user input for booking ID
-        System.out.print("Enter Booking ID to update: ");
-        int bookingId = Integer.parseInt(scanner.nextLine());
+    public static void open() {
+        // Create the frame for the booking update UI
+        JFrame frame = new JFrame("Update Booking Details");
+        frame.setSize(400, 400);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new GridLayout(6, 2, 10, 10));  // Updated grid to fit the new button
 
-        // Display current booking details
-        displayBookingDetails(bookingId);
+        // Create components
+        JLabel bookingIdLabel = new JLabel("Enter Booking ID: ");
+        JTextField bookingIdField = new JTextField();
 
-        // Get user input for the field to update
-        System.out.println("\nWhat would you like to update?");
-        System.out.println("1. Travel Date");
-        System.out.println("2. Number of Seats");
-        System.out.println("3. Status");
-        System.out.print("Enter choice (1-3): ");
-        int choice = Integer.parseInt(scanner.nextLine());
+        JButton fetchButton = new JButton("Fetch Details");
+        JLabel statusLabel = new JLabel("");
 
-        // Call update method based on user choice
-        switch (choice) {
-            case 1:
-                updateTravelDate(bookingId, scanner);
-                break;
-            case 2:
-                updateNumberOfSeats(bookingId, scanner);
-                break;
-            case 3:
-                updateStatus(bookingId, scanner);
-                break;
-            default:
-                System.out.println("Invalid choice.");
-                break;
-        }
+        // Fields for updating details
+        JLabel travelDateLabel = new JLabel("Travel Date (YYYY-MM-DD): ");
+        JTextField travelDateField = new JTextField();
 
-        displayBookingDetails(bookingId);
+        JLabel seatsLabel = new JLabel("Number of Seats: ");
+        JTextField seatsField = new JTextField();
+
+        JLabel statusUpdateLabel = new JLabel("Status (e.g., Confirmed, Cancelled): ");
+        JTextField statusField = new JTextField();
+
+        // Add components to the frame
+        frame.add(bookingIdLabel);
+        frame.add(bookingIdField);
+        frame.add(fetchButton);
+        frame.add(statusLabel);
+
+        frame.add(travelDateLabel);
+        frame.add(travelDateField);
+        frame.add(seatsLabel);
+        frame.add(seatsField);
+        frame.add(statusUpdateLabel);
+        frame.add(statusField);
+
+        // Action listener for fetch button
+        fetchButton.addActionListener(e -> {
+            int bookingId = Integer.parseInt(bookingIdField.getText());
+            displayBookingDetails(bookingId, statusLabel, travelDateField, seatsField, statusField);
+        });
+
+        // Add action listener to update the booking details
+        JButton updateButton = new JButton("Update Booking");
+        updateButton.addActionListener(e -> {
+            int bookingId = Integer.parseInt(bookingIdField.getText());
+            String travelDate = travelDateField.getText();
+            int numberOfSeats = Integer.parseInt(seatsField.getText());
+            String status = statusField.getText();
+
+            // Update booking details
+            updateBookingDetails(bookingId, travelDate, numberOfSeats, status, statusLabel);
+        });
+        frame.add(updateButton);
+
+        // Add button to go back to login page
+        JButton goToLoginButton = new JButton("Go to Login Page");
+        goToLoginButton.addActionListener(e -> {
+            frame.setVisible(false);  // Hide the current frame
+            login.main(null); // Assuming you have a Login class
+        });
+        frame.add(goToLoginButton);  // Add the "Go to Login Page" button to the frame
+
+        // Show the frame
+        frame.setVisible(true);
     }
 
     /**
      * Display current booking details before updating.
-     * 
-     * @param bookingId The ID of the booking to display.
      */
-    private static void displayBookingDetails(int bookingId) {
-        String query = "SELECT booking.booking_id, booking.user_id, booking.booking_date, booking.travel_date, " +
-                "booking.number_of_seats, booking.total_fare, booking.status, routes.route_name, routes.start_point, " +
-                "routes.end_point, routes.distance_km, routes.estimated_time, routes.fare " +
-                "FROM booking " +
-                "JOIN routes ON booking.route_id = routes.route_id " +
-                "WHERE booking.booking_id = ?";
+    private static void displayBookingDetails(int bookingId, JLabel statusLabel, JTextField travelDateField, 
+                                              JTextField seatsField, JTextField statusField) {
+        String query = "SELECT booking_id, travel_date, number_of_seats, status " +
+                       "FROM booking WHERE booking_id = ?";
 
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            // Set the booking ID parameter in the query
             preparedStatement.setInt(1, bookingId);
-
-            // Execute the query and get the results
             ResultSet resultSet = preparedStatement.executeQuery();
 
             if (resultSet.next()) {
-                // Display booking details
-                System.out.println("\n=== Current Booking Details ===");
-                System.out.printf("Booking ID: %d%n", resultSet.getInt("booking_id"));
-                System.out.printf("User ID: %d%n", resultSet.getInt("user_id"));
-                System.out.printf("Booking Date: %s%n", resultSet.getString("booking_date"));
-                System.out.printf("Travel Date: %s%n", resultSet.getString("travel_date"));
-                System.out.printf("Number of Seats: %d%n", resultSet.getInt("number_of_seats"));
-                System.out.printf("Total Fare: %.2f%n", resultSet.getDouble("total_fare"));
-                System.out.printf("Booking Status: %s%n", resultSet.getString("status"));
-
-                System.out.printf("\nRoute Name: %s%n", resultSet.getString("route_name"));
-                System.out.printf("Start Point: %s%n", resultSet.getString("start_point"));
-                System.out.printf("End Point: %s%n", resultSet.getString("end_point"));
-                System.out.printf("Distance (km): %.2f%n", resultSet.getDouble("distance_km"));
-                System.out.printf("Estimated Time: %s%n", resultSet.getString("estimated_time"));
-                System.out.printf("Route Fare: %.2f%n", resultSet.getDouble("fare"));
+                // Display booking details in the fields
+                travelDateField.setText(resultSet.getString("travel_date"));
+                seatsField.setText(String.valueOf(resultSet.getInt("number_of_seats")));
+                statusField.setText(resultSet.getString("status"));
+                statusLabel.setText("Booking found! You can now update.");
             } else {
-                System.out.println("Booking not found.");
+                statusLabel.setText("Booking not found.");
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+            statusLabel.setText("Database error: " + e.getMessage());
         }
     }
 
     /**
-     * Update the travel date of the booking.
-     * 
-     * @param bookingId The ID of the booking to update.
-     * @param scanner The scanner object to read user input.
+     * Update the booking details in the database.
      */
-    private static void updateTravelDate(int bookingId, Scanner scanner) {
-        // Get new travel date from the user
-        System.out.print("Enter new Travel Date (YYYY-MM-DD): ");
-        String newTravelDate = scanner.nextLine();
-
-        String updateQuery = "UPDATE booking SET travel_date = ? WHERE booking_id = ?";
+    private static void updateBookingDetails(int bookingId, String travelDate, int numberOfSeats, String status,
+                                             JLabel statusLabel) {
+        String updateQuery = "UPDATE booking SET travel_date = ?, number_of_seats = ?, status = ? WHERE booking_id = ?";
 
         try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
              PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
 
-            // Set the parameters for the update query
-            preparedStatement.setString(1, newTravelDate);
-            preparedStatement.setInt(2, bookingId);
+            preparedStatement.setString(1, travelDate);
+            preparedStatement.setInt(2, numberOfSeats);
+            preparedStatement.setString(3, status);
+            preparedStatement.setInt(4, bookingId);
 
-            // Execute the update query
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
-                System.out.println("Travel Date updated successfully.");
+                statusLabel.setText("Booking updated successfully.");
             } else {
-                System.out.println("Failed to update Travel Date.");
+                statusLabel.setText("Failed to update booking.");
             }
 
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+            statusLabel.setText("Database error: " + e.getMessage());
         }
     }
-
-    /**
-     * Update the number of seats in the booking.
-     * 
-     * @param bookingId The ID of the booking to update.
-     * @param scanner The scanner object to read user input.
-     */
-    private static void updateNumberOfSeats(int bookingId, Scanner scanner) {
-        // Get new number of seats from the user
-        System.out.print("Enter new number of seats: ");
-        int newNumberOfSeats = Integer.parseInt(scanner.nextLine());
-
-        // Get the route fare to calculate the new total fare
-        String fareQuery = "SELECT fare FROM routes WHERE route_id = (SELECT route_id FROM booking WHERE booking_id = ?)";
-        double newTotalFare = 0;
-
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement fareStatement = connection.prepareStatement(fareQuery)) {
-
-            // Set the booking ID to find the fare
-            fareStatement.setInt(1, bookingId);
-            ResultSet resultSet = fareStatement.executeQuery();
-
-            if (resultSet.next()) {
-                double routeFare = resultSet.getDouble("fare");
-                newTotalFare = routeFare * newNumberOfSeats;
-            }
-
-            // Update the number of seats and total fare in the booking
-            String updateQuery = "UPDATE booking SET number_of_seats = ?, total_fare = ? WHERE booking_id = ?";
-
-            try (PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-                preparedStatement.setInt(1, newNumberOfSeats);
-                preparedStatement.setDouble(2, newTotalFare);
-                preparedStatement.setInt(3, bookingId);
-
-                // Execute the update query
-                int rowsAffected = preparedStatement.executeUpdate();
-                if (rowsAffected > 0) {
-                    System.out.println("Number of Seats updated successfully.");
-                    System.out.printf("New Total Fare: %.2f%n", newTotalFare);
-                } else {
-                    System.out.println("Failed to update Number of Seats.");
-                }
-
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Update the status of the booking.
-     * 
-     * @param bookingId The ID of the booking to update.
-     * @param scanner The scanner object to read user input.
-     */
-    private static void updateStatus(int bookingId, Scanner scanner) {
-        // Get new status from the user
-        System.out.print("Enter new Status (e.g., 'Confirmed', 'Cancelled', etc.): ");
-        String newStatus = scanner.nextLine();
-
-        String updateQuery = "UPDATE booking SET status = ? WHERE booking_id = ?";
-
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-
-            // Set the parameters for the update query
-            preparedStatement.setString(1, newStatus);
-            preparedStatement.setInt(2, bookingId);
-
-            // Execute the update query
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                System.out.println("Status updated successfully.");
-            } else {
-                System.out.println("Failed to update Status.");
-            }
-
-        } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
-        }
+    
+    public static void main(String[] args) {
+        open();  // Open the Booking Routes Join GUI
     }
 }
