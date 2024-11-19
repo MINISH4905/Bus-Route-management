@@ -1,84 +1,120 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
-import java.util.Scanner;
 
 public class signup {
+    // Database connection details
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/bus"; // Replace 'bus' with your database name
+    private static final String DB_USER = "root"; // Replace with your MySQL username
+    private static final String DB_PASSWORD = "moni2626"; // Replace with your MySQL password
+
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("Welcome! Please select an option:");
-            System.out.println("1. Sign Up");
-            System.out.println("2. Login Page");
-            System.out.println("3. Exit");
+        // Create the frame
+        JFrame frame = new JFrame("Signup Page");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            System.out.print("Enter your choice (1/2/3): ");
-            String choice = scanner.nextLine();
+        // Create a panel
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(5, 2, 10, 10));
+        frame.add(panel);
 
-            switch (choice) {
-                case "1":
-                    performSignup(scanner);
-                    break;
-                case "2":
-                    System.out.println("Redirecting to login page...");
-                    // Here you can call your login class or method
-                    login.main(null); // Replace with the correct call for your login page
-                    return; // Exit the signup process after redirecting
-                case "3":
-                    System.out.println("Exiting the program. Goodbye!");
-                    scanner.close();
+        // Add components
+        JLabel usernameLabel = new JLabel("Username:");
+        JTextField usernameField = new JTextField();
+
+        JLabel emailLabel = new JLabel("Email:");
+        JTextField emailField = new JTextField();
+
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordField = new JPasswordField();
+
+        JButton signupButton = new JButton("Sign Up");
+        JButton loginButton = new JButton("Login Page");
+
+        JLabel statusLabel = new JLabel("", JLabel.CENTER);
+
+        panel.add(usernameLabel);
+        panel.add(usernameField);
+        panel.add(emailLabel);
+        panel.add(emailField);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(signupButton);
+        panel.add(loginButton);
+        panel.add(statusLabel);
+
+        // Add signup button action
+        signupButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String username = usernameField.getText();
+                String email = emailField.getText();
+                String password = new String(passwordField.getPassword());
+
+                if (username.isEmpty() || email.isEmpty() || password.isEmpty()) {
+                    statusLabel.setText("All fields are required!");
                     return;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
+                }
+
+                if (performSignup(username, email, password)) {
+                    statusLabel.setText("Signup successful! You can now log in.");
+                    usernameField.setText("");
+                    emailField.setText("");
+                    passwordField.setText("");
+                } else {
+                    statusLabel.setText("Signup failed. Try again.");
+                }
             }
-        }
+        });
+
+        // Add login button action
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                statusLabel.setText("Redirecting to login page...");
+                // Implement or call your login page here
+                frame.dispose(); // Close the current window
+                login.main(null); // Assuming you have a Login class
+            }
+        });
+
+        // Show the frame
+        frame.setVisible(true);
     }
 
-    private static void performSignup(Scanner scanner) {
-        // Database connection details
-        String url = "jdbc:mysql://localhost:3306/bus"; // Replace 'bus' with your database name
-        String user = "root"; // Replace with your MySQL username
-        String password = "moni2626"; // Replace with your MySQL password
-
+    // Perform signup logic
+    private static boolean performSignup(String username, String email, String plainPassword) {
         // SQL INSERT query
         String sql = "INSERT INTO signup (username, email, password) VALUES (?, ?, ?)";
 
         try {
-            // Collect user input
-            System.out.print("Enter username: ");
-            String username = scanner.nextLine();
-            System.out.print("Enter email: ");
-            String email = scanner.nextLine();
-            System.out.print("Enter password: ");
-            String plainPassword = scanner.nextLine();
-
             // For security, hash the password (this is a placeholder, replace with a real hashing function)
             String hashedPassword = hashPassword(plainPassword);
 
             // Establish database connection and insert user data
-            try (Connection conn = DriverManager.getConnection(url, user, password);
+            try (Connection conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
                  PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-                // Set parameters for the query
                 pstmt.setString(1, username);
                 pstmt.setString(2, email);
                 pstmt.setString(3, hashedPassword);
 
-                // Execute the query
                 int rowsInserted = pstmt.executeUpdate();
-                if (rowsInserted > 0) {
-                    System.out.println("Signup successful! You can now log in.");
-                }
-            } catch (Exception e) {
-                System.err.println("Error during signup: " + e.getMessage());
+                return rowsInserted > 0;
             }
         } catch (Exception e) {
-            System.err.println("An error occurred: " + e.getMessage());
+            System.err.println("Error during signup: " + e.getMessage());
+            return false;
         }
     }
 
     // Placeholder method for hashing passwords
-    public static String hashPassword(String password) {
+    private static String hashPassword(String password) {
         // Implement a proper password hashing algorithm like BCrypt here
         return password; // Return plain text password for now (NOT secure)
     }
