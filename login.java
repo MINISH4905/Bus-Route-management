@@ -1,5 +1,8 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.*;
-import java.util.Scanner;
 
 public class login {
     // Database connection details
@@ -8,34 +11,62 @@ public class login {
     private static final String DB_PASSWORD = "moni2626";
 
     public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+        // Create the login frame
+        JFrame frame = new JFrame("Login Page");
+        frame.setSize(400, 300);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        System.out.println("=== Login Page ===");
+        // Create the panel
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(4, 2, 10, 10));
+        frame.add(panel);
 
-        // Get email and password input from the user
-        System.out.print("Enter Email: ");
-        String email = scanner.nextLine();
+        // Add components
+        JLabel emailLabel = new JLabel("Email:");
+        JTextField emailField = new JTextField();
 
-        System.out.print("Enter Password: ");
-        String password = scanner.nextLine();
+        JLabel passwordLabel = new JLabel("Password:");
+        JPasswordField passwordField = new JPasswordField();
 
-        // Authenticate the user
-        if (authenticate(email, password)) {
-            System.out.println("Login successful! Welcome!");
-            postLoginMenu(scanner); // After login, show the post-login menu
-        } else {
-            System.out.println("Invalid email or password. Please try again.");
-        }
+        JButton loginButton = new JButton("Login");
+        JLabel statusLabel = new JLabel("", JLabel.CENTER);
 
-        scanner.close();
+        panel.add(emailLabel);
+        panel.add(emailField);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(new JLabel()); // Empty cell for alignment
+        panel.add(loginButton);
+        panel.add(statusLabel);
+
+        // Add login button action
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String email = emailField.getText();
+                String password = new String(passwordField.getPassword());
+
+                if (email.isEmpty() || password.isEmpty()) {
+                    statusLabel.setText("All fields are required!");
+                    return;
+                }
+
+                if (authenticate(email, password)) {
+                    statusLabel.setText("Login successful!");
+                    frame.dispose(); // Close login window
+                    showPostLoginMenu(); // Open post-login menu
+                } else {
+                    statusLabel.setText("Invalid email or password.");
+                }
+            }
+        });
+
+        // Show the frame
+        frame.setVisible(true);
     }
 
     /**
-     * Method to authenticate a user using the signup table
-     *
-     * @param email    The email entered by the user
-     * @param password The password entered by the user
-     * @return boolean Whether the user is authenticated successfully
+     * Method to authenticate a user using the signup table.
      */
     private static boolean authenticate(String email, String password) {
         // SQL query to verify the user in the signup table
@@ -54,49 +85,62 @@ public class login {
             // Check if a matching record exists
             return resultSet.next();
         } catch (SQLException e) {
-            System.err.println("Database error: " + e.getMessage());
+            JOptionPane.showMessageDialog(null, "Database error: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
 
         return false;
     }
 
     /**
-     * This method shows the post-login menu for the user.
+     * This method shows the post-login menu for the user in a new window.
      */
-    private static void postLoginMenu(Scanner scanner) {
-        boolean exit = false;
+    private static void showPostLoginMenu() {
+        // Create a new frame for the post-login menu
+        JFrame menuFrame = new JFrame("Post-Login Menu");
+        menuFrame.setSize(400, 300);
+        menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        while (!exit) {
-            System.out.println("\n=== Post-Login Menu ===");
-            System.out.println("1. Route Details");
-            System.out.println("2. Book a Ticket");
-            System.out.println("3. Update Booking Details");
-            System.out.println("4. Logout");
-            System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // Consume the newline character left by nextInt()
+        // Create the panel
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(5, 1, 10, 10));
+        menuFrame.add(panel);
 
-            switch (choice) {
-                case 1:
-                    // Route Details functionality (Navigate to RouteDetails.java)
-                    RouteDetails.open(scanner);
-                    break;
-                case 2:
-                    // Book a Ticket functionality (Navigate to TicketBooking.java)
-                    TicketBooking.open(scanner);
-                    break;
-                case 3:
-                    // View Booking Details functionality (Navigate to BookingRoutesJoin.java)
-                    BookingRoutesJoin.open(scanner);
-                    break;
-                case 4:
-                    // Logout and exit
-                    System.out.println("Logging out...");
-                    exit = true;
-                    break;
-                default:
-                    System.out.println("Invalid choice. Please try again.");
-            }
-        }
+        // Add buttons
+        JButton routeDetailsButton = new JButton("Route Details");
+        JButton bookTicketButton = new JButton("Update booking Details");
+        JButton updateBookingButton = new JButton("Book tickets");
+        JButton logoutButton = new JButton("Logout");
+
+        panel.add(routeDetailsButton);
+        panel.add(bookTicketButton);
+        panel.add(updateBookingButton);
+        panel.add(logoutButton);
+
+        // Add action listeners for redirection
+        routeDetailsButton.addActionListener(e -> {
+            menuFrame.dispose(); // Close the menu frame
+            RouteDetails.open(); // Redirect to RouteDetails functionality
+        });
+
+        // Update: Redirecting to BookingRoutesJoin when the "Book a Ticket" button is clicked
+        bookTicketButton.addActionListener(e -> {
+            menuFrame.dispose(); // Close the menu frame
+            BookingRoutesJoin.open(); // Redirect to BookingRoutesJoin functionality
+        });
+
+        updateBookingButton.addActionListener(e -> {
+            menuFrame.dispose(); // Close the menu frame
+            TicketBooking.open();
+            // Add redirection to Update Booking if implemented
+        });
+
+        logoutButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(menuFrame, "Logging out...");
+            menuFrame.dispose(); // Close the post-login menu
+            main(null); // Redirect to login page
+        });
+
+        // Show the menu frame
+        menuFrame.setVisible(true);
     }
 }
