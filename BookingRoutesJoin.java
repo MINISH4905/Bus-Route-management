@@ -1,138 +1,164 @@
 import java.awt.*;
-import java.sql.*;
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 
 public class BookingRoutesJoin {
-    // Database connection details
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/bus"; // Update with your DB URL
-    private static final String DB_USER = "root"; // Update with your DB username
-    private static final String DB_PASSWORD = "moni2626"; // Update with your DB password
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/bus";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "moni2626";
 
     public static void open() {
-        // Create the frame for the booking update UI
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         JFrame frame = new JFrame("Update Booking Details");
-        frame.setSize(400, 400);
+        frame.setSize(700, 600);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLayout(new GridLayout(6, 2, 10, 10));  // Updated grid to fit the new button
+        frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
 
-        // Create components
-        JLabel bookingIdLabel = new JLabel("Enter Booking ID: ");
-        JTextField bookingIdField = new JTextField();
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        // Title Label
+        JLabel titleLabel = new JLabel("Update Booking");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(0, 122, 204));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 0, 30, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(titleLabel, gbc);
+
+        // Booking ID
+        JLabel bookingIdLabel = new JLabel("Enter Booking ID:");
+        bookingIdLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(5, 5, 10, 10);
+        panel.add(bookingIdLabel, gbc);
+
+        JTextField bookingIdField = new JTextField(20);
+        bookingIdField.setFont(new Font("Arial", Font.PLAIN, 16));
+        bookingIdField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
+        gbc.gridx = 1;
+        gbc.gridy = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(bookingIdField, gbc);
+
+        // Fetch Details Button
         JButton fetchButton = new JButton("Fetch Details");
+        fetchButton.setFont(new Font("Arial", Font.BOLD, 16));
+        fetchButton.setBackground(new Color(0, 122, 204)); // Blue background
+        fetchButton.setForeground(Color.WHITE);           // White text
+        fetchButton.setFocusPainted(false);
+        fetchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(10, 0, 20, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(fetchButton, gbc);
+
+        // Status Label
         JLabel statusLabel = new JLabel("");
+        statusLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        statusLabel.setForeground(Color.RED);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(5, 0, 15, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(statusLabel, gbc);
 
-        // Fields for updating details
-        JLabel travelDateLabel = new JLabel("Travel Date (YYYY-MM-DD): ");
-        JTextField travelDateField = new JTextField();
+        // Travel Date
+        JLabel travelDateLabel = new JLabel("Travel Date (YYYY-MM-DD):");
+        travelDateLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 1;
+        gbc.anchor = GridBagConstraints.EAST;
+        gbc.insets = new Insets(5, 5, 10, 10);
+        panel.add(travelDateLabel, gbc);
 
-        JLabel seatsLabel = new JLabel("Number of Seats: ");
-        JTextField seatsField = new JTextField();
+        JTextField travelDateField = new JTextField(20);
+        travelDateField.setFont(new Font("Arial", Font.PLAIN, 16));
+        travelDateField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
+        gbc.gridx = 1;
+        gbc.gridy = 4;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(travelDateField, gbc);
 
-        JLabel statusUpdateLabel = new JLabel("Status (e.g., Confirmed, Cancelled): ");
-        JTextField statusField = new JTextField();
+        // Seats
+        JLabel seatsLabel = new JLabel("Number of Seats:");
+        seatsLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(seatsLabel, gbc);
 
-        // Add components to the frame
-        frame.add(bookingIdLabel);
-        frame.add(bookingIdField);
-        frame.add(fetchButton);
-        frame.add(statusLabel);
+        JTextField seatsField = new JTextField(20);
+        seatsField.setFont(new Font("Arial", Font.PLAIN, 16));
+        seatsField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
+        gbc.gridx = 1;
+        gbc.gridy = 5;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(seatsField, gbc);
 
-        frame.add(travelDateLabel);
-        frame.add(travelDateField);
-        frame.add(seatsLabel);
-        frame.add(seatsField);
-        frame.add(statusUpdateLabel);
-        frame.add(statusField);
+        // Status Update
+        JLabel statusUpdateLabel = new JLabel("Status (e.g., Confirmed, Cancelled):");
+        statusUpdateLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.EAST;
+        panel.add(statusUpdateLabel, gbc);
 
-        // Action listener for fetch button
-        fetchButton.addActionListener(e -> {
-            int bookingId = Integer.parseInt(bookingIdField.getText());
-            displayBookingDetails(bookingId, statusLabel, travelDateField, seatsField, statusField);
-        });
+        JTextField statusField = new JTextField(20);
+        statusField.setFont(new Font("Arial", Font.PLAIN, 16));
+        statusField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
+        gbc.gridx = 1;
+        gbc.gridy = 6;
+        gbc.anchor = GridBagConstraints.WEST;
+        panel.add(statusField, gbc);
 
-        // Add action listener to update the booking details
+        // Update Booking Button
         JButton updateButton = new JButton("Update Booking");
-        updateButton.addActionListener(e -> {
-            int bookingId = Integer.parseInt(bookingIdField.getText());
-            String travelDate = travelDateField.getText();
-            int numberOfSeats = Integer.parseInt(seatsField.getText());
-            String status = statusField.getText();
+        updateButton.setFont(new Font("Arial", Font.BOLD, 18));
+        updateButton.setBackground(new Color(34, 139, 34)); // Green background
+        updateButton.setForeground(Color.WHITE);            // White text
+        updateButton.setFocusPainted(false);
+        updateButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        gbc.gridx = 0;
+        gbc.gridy = 7;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(20, 0, 10, 0);
+        gbc.anchor = GridBagConstraints.CENTER;
+        panel.add(updateButton, gbc);
 
-            // Update booking details
-            updateBookingDetails(bookingId, travelDate, numberOfSeats, status, statusLabel);
-        });
-        frame.add(updateButton);
-
-        // Add button to go back to login page
+        // Go to Login Page Button
         JButton goToLoginButton = new JButton("Go to Login Page");
-        goToLoginButton.addActionListener(e -> {
-            frame.setVisible(false);  // Hide the current frame
-            login.main(null); // Assuming you have a Login class
-        });
-        frame.add(goToLoginButton);  // Add the "Go to Login Page" button to the frame
+        goToLoginButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        goToLoginButton.setBackground(Color.WHITE);          // White background
+        goToLoginButton.setForeground(new Color(0, 122, 204)); // Blue text
+        goToLoginButton.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        goToLoginButton.setFocusPainted(false);
+        goToLoginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        gbc.gridy = 8;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        panel.add(goToLoginButton, gbc);
 
-        // Show the frame
+        frame.add(panel);
         frame.setVisible(true);
     }
 
-    /**
-     * Display current booking details before updating.
-     */
-    private static void displayBookingDetails(int bookingId, JLabel statusLabel, JTextField travelDateField, 
-                                              JTextField seatsField, JTextField statusField) {
-        String query = "SELECT booking_id, travel_date, number_of_seats, status " +
-                       "FROM booking WHERE booking_id = ?";
-
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-            preparedStatement.setInt(1, bookingId);
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                // Display booking details in the fields
-                travelDateField.setText(resultSet.getString("travel_date"));
-                seatsField.setText(String.valueOf(resultSet.getInt("number_of_seats")));
-                statusField.setText(resultSet.getString("status"));
-                statusLabel.setText("Booking found! You can now update.");
-            } else {
-                statusLabel.setText("Booking not found.");
-            }
-
-        } catch (SQLException e) {
-            statusLabel.setText("Database error: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Update the booking details in the database.
-     */
-    private static void updateBookingDetails(int bookingId, String travelDate, int numberOfSeats, String status,
-                                             JLabel statusLabel) {
-        String updateQuery = "UPDATE booking SET travel_date = ?, number_of_seats = ?, status = ? WHERE booking_id = ?";
-
-        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
-
-            preparedStatement.setString(1, travelDate);
-            preparedStatement.setInt(2, numberOfSeats);
-            preparedStatement.setString(3, status);
-            preparedStatement.setInt(4, bookingId);
-
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected > 0) {
-                statusLabel.setText("Booking updated successfully.");
-            } else {
-                statusLabel.setText("Failed to update booking.");
-            }
-
-        } catch (SQLException e) {
-            statusLabel.setText("Database error: " + e.getMessage());
-        }
-    }
-    
     public static void main(String[] args) {
-        open();  // Open the Booking Routes Join GUI
+        open();
     }
 }
