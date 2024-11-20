@@ -1,176 +1,232 @@
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.*;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 
-public class BookingRoutesJoin {
+public class RouteDetails {
+    // Database connection details
     private static final String DB_URL = "jdbc:mysql://localhost:3306/bus";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "moni2626";
 
     public static void open() {
+        // Set the look and feel of the UI for better consistency across platforms
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        JFrame frame = new JFrame("Update Booking Details");
-        frame.setSize(700, 600);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setLocationRelativeTo(null);
+        // Create and setup the frame for Route Details Finder
+        JFrame frame = new JFrame("Route Details Finder");
+        frame.setSize(900, 700);  // Adjusted frame size for better content display
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLocationRelativeTo(null);  // Center the frame on the screen
         frame.setResizable(false);
 
+        // Create a JPanel with GridBagLayout for better control of component placement
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30)); // Added margin for better spacing
 
         // Title Label
-        JLabel titleLabel = new JLabel("Update Booking");
+        JLabel titleLabel = new JLabel("Route Details Finder");
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(0, 122, 204));
+        titleLabel.setForeground(new Color(0, 122, 204));  // Vibrant color for title
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
-        gbc.insets = new Insets(0, 0, 30, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(0, 0, 30, 0);  // Spacing after the title
         panel.add(titleLabel, gbc);
 
-        // Booking ID
-        JLabel bookingIdLabel = new JLabel("Enter Booking ID:");
-        bookingIdLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        // Route Name Label and TextField
+        JLabel routeLabel = new JLabel("Enter Route Name:");
+        routeLabel.setFont(new Font("Arial", Font.PLAIN, 16));
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.insets = new Insets(5, 5, 10, 10);
-        panel.add(bookingIdLabel, gbc);
+        panel.add(routeLabel, gbc);
 
-        JTextField bookingIdField = new JTextField(20);
-        bookingIdField.setFont(new Font("Arial", Font.PLAIN, 16));
-        bookingIdField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
+        JTextField routeField = new JTextField(30);  // Adjusted width of the text field
+        routeField.setFont(new Font("Arial", Font.PLAIN, 16));
+        routeField.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
         gbc.gridx = 1;
         gbc.gridy = 1;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(bookingIdField, gbc);
+        gbc.gridwidth = 2;  // Allow the field to span two columns
+        panel.add(routeField, gbc);
 
-        // Fetch Details Button
-        JButton fetchButton = new JButton("Fetch Details");
-        fetchButton.setFont(new Font("Arial", Font.BOLD, 16));
-        fetchButton.setBackground(new Color(0, 122, 204)); // Blue background
-        fetchButton.setForeground(Color.WHITE);           // White text
-        fetchButton.setFocusPainted(false);
-        fetchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.gridwidth = 2;
-        gbc.insets = new Insets(10, 0, 20, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(fetchButton, gbc);
+        // Search Button
+        JButton searchButton = new JButton("Search");
+        searchButton.setFont(new Font("Arial", Font.BOLD, 18));
+        searchButton.setBackground(new Color(0, 122, 204));
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBorderPainted(false);
+        searchButton.setFocusPainted(false);
+        searchButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
-        // Status Label
-        JLabel statusLabel = new JLabel("");
-        statusLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        statusLabel.setForeground(Color.RED);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        gbc.gridwidth = 2;
-        gbc.insets = new Insets(5, 0, 15, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(statusLabel, gbc);
+        // Hover effect for Search button
+        searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                searchButton.setBackground(new Color(0, 150, 255)); // Lighter on hover
+            }
 
-        // Travel Date
-        JLabel travelDateLabel = new JLabel("Travel Date (YYYY-MM-DD):");
-        travelDateLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 1;
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.insets = new Insets(5, 5, 10, 10);
-        panel.add(travelDateLabel, gbc);
-
-        JTextField travelDateField = new JTextField(20);
-        travelDateField.setFont(new Font("Arial", Font.PLAIN, 16));
-        travelDateField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(travelDateField, gbc);
-
-        // Seats
-        JLabel seatsLabel = new JLabel("Number of Seats:");
-        seatsLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(seatsLabel, gbc);
-
-        JTextField seatsField = new JTextField(20);
-        seatsField.setFont(new Font("Arial", Font.PLAIN, 16));
-        seatsField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
-        gbc.gridx = 1;
-        gbc.gridy = 5;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(seatsField, gbc);
-
-        // Status Update
-        JLabel statusUpdateLabel = new JLabel("Status (e.g., Confirmed, Cancelled):");
-        statusUpdateLabel.setFont(new Font("Arial", Font.PLAIN, 16));
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.anchor = GridBagConstraints.EAST;
-        panel.add(statusUpdateLabel, gbc);
-
-        JTextField statusField = new JTextField(20);
-        statusField.setFont(new Font("Arial", Font.PLAIN, 16));
-        statusField.setBorder(new LineBorder(new Color(0, 122, 204), 2));
-        gbc.gridx = 1;
-        gbc.gridy = 6;
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(statusField, gbc);
-
-        // Update Booking Button
-        JButton updateButton = new JButton("Update Booking");
-        updateButton.setFont(new Font("Arial", Font.BOLD, 18));
-        updateButton.setBackground(new Color(34, 139, 34)); // Green background
-        updateButton.setForeground(Color.WHITE);            // White text
-        updateButton.setFocusPainted(false);
-        updateButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.gridwidth = 2;
-        gbc.insets = new Insets(20, 0, 10, 0);
-        gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(updateButton, gbc);
-
-        // Go to Login Page Button
-        JButton goToLoginButton = new JButton("Go to Login Page");
-        goToLoginButton.setFont(new Font("Arial", Font.PLAIN, 16));
-        goToLoginButton.setBackground(Color.WHITE);          // White background
-        goToLoginButton.setForeground(new Color(0, 122, 204)); // Blue text
-        goToLoginButton.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
-        goToLoginButton.setFocusPainted(false);
-        goToLoginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        gbc.gridy = 8;
-        gbc.insets = new Insets(10, 0, 0, 0);
-        panel.add(goToLoginButton, gbc);
-
-        // Add action listener to go to login page button
-        goToLoginButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setVisible(false); // Hide the current window
-                login.main(null); // Assuming you have a Login class
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                searchButton.setBackground(new Color(0, 122, 204)); // Default color
             }
         });
 
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        gbc.gridwidth = 3;  // Button spans all columns
+        panel.add(searchButton, gbc);
+
+        // Result Area for displaying the route details
+        JTextArea resultArea = new JTextArea();
+        resultArea.setEditable(false);  // Make the result area read-only
+        resultArea.setLineWrap(true);
+        resultArea.setWrapStyleWord(true);
+        resultArea.setFont(new Font("Arial", Font.PLAIN, 16));
+        resultArea.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        JScrollPane scrollPane = new JScrollPane(resultArea); // Added scroll pane for better result area visibility
+        scrollPane.setPreferredSize(new Dimension(700, 200));  // Adjusted size for result area
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 3;
+        gbc.insets = new Insets(10, 0, 20, 0);  // Added space between result area and buttons
+        panel.add(scrollPane, gbc);
+
+        // Buttons panel (Back and Login buttons)
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
+        // Back Button
+        JButton backButton = new JButton("Login");
+        backButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        backButton.setBackground(Color.WHITE);
+        backButton.setForeground(new Color(0, 122, 204));
+        backButton.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        backButton.setFocusPainted(false);
+        backButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover effect for Back button
+        backButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                backButton.setBackground(new Color(0, 122, 204));  // Lighter on hover
+                backButton.setForeground(Color.WHITE);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                backButton.setBackground(Color.WHITE);  // Default color
+                backButton.setForeground(new Color(0, 122, 204));  // Default text color
+            }
+        });
+
+        // Login Button
+        JButton loginButton = new JButton("Back");
+        loginButton.setFont(new Font("Arial", Font.PLAIN, 16));
+        loginButton.setBackground(new Color(255, 255, 255));
+        loginButton.setForeground(new Color(0, 122, 204));
+        loginButton.setBorder(BorderFactory.createLineBorder(new Color(0, 122, 204), 2));
+        loginButton.setFocusPainted(false);
+        loginButton.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+        // Hover effect for Login button
+        loginButton.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(new Color(0, 122, 204));  // Lighter on hover
+                loginButton.setForeground(Color.WHITE);
+            }
+
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                loginButton.setBackground(Color.WHITE);  // Default color
+                loginButton.setForeground(new Color(0, 122, 204));  // Default text color
+            }
+        });
+
+        buttonPanel.add(backButton);
+        buttonPanel.add(loginButton);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        gbc.gridwidth = 3;
+        panel.add(buttonPanel, gbc);
+
+        // Add action listener for the search button
+        searchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String routeName = routeField.getText().trim();
+                if (routeName.isEmpty()) {
+                    resultArea.setText("Please enter a route name.");
+                } else {
+                    String result = getRouteDetails(routeName);
+                    resultArea.setText(result);
+                }
+            }
+        });
+
+        // Add action listener for the back button
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // Close the Route Details window
+                login.main(null);
+            }
+        });
+
+        // Add action listener for the login button
+        loginButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.dispose(); // Close the Route Details window
+                PostLoginMenu.main(null); // Assuming you have a Login class
+            }
+        });
+
+        // Show the frame
         frame.add(panel);
         frame.setVisible(true);
     }
 
-    public static void main(String[] args) {
-        open();
+    /**
+     * Method to retrieve route details from the database
+     *
+     * @param routeName The name of the route to search for
+     * @return A string containing the route details or an error message
+     */
+    private static String getRouteDetails(String routeName) {
+        String query = "SELECT * FROM routes WHERE route_name = ?";
+
+        try (Connection connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setString(1, routeName);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return String.format(
+                        "=== Route Details ===\n" +
+                        "Route ID: %d\n" +
+                        "Route Name: %s\n" +
+                        "Start Point: %s\n" +
+                        "End Point: %s\n" +
+                        "Distance (km): %.2f\n" +
+                        "Estimated Time: %s\n" +
+                        "Fare: %.2f\n",
+                        resultSet.getInt("route_id"),
+                        resultSet.getString("route_name"),
+                        resultSet.getString("start_point"),
+                        resultSet.getString("end_point"),
+                        resultSet.getDouble("distance_km"),
+                        resultSet.getTime("estimated_time"),
+                        resultSet.getDouble("fare")
+                );
+            } else {
+                return "No route found with the name: " + routeName;
+            }
+        } catch (SQLException e) {
+            return "Database error: " + e.getMessage();
+        }
     }
 }
-
