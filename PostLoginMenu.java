@@ -37,6 +37,7 @@ public class PostLoginMenu {
         JButton viewBooking = createMenuButton("View Booking");
         JButton deleteBooking = createMenuButton("Delete Booking");
         JButton Check = createMenuButton("Members");
+        JButton update = createMenuButton("Update Details");
         JButton logoutButton = createMenuButton("Logout");
 
         // Arrange the buttons
@@ -59,6 +60,9 @@ public class PostLoginMenu {
         panel.add(Check, gbc);
 
         gbc.gridy = 6;
+        panel.add(update, gbc);
+
+        gbc.gridy = 7;
         panel.add(logoutButton, gbc);
 
         // Add button actions
@@ -89,6 +93,10 @@ public class PostLoginMenu {
             PrintMembers.main(null);// Display route details from the database
         });
 
+        update.addActionListener(e -> {
+            menuFrame.dispose();
+            updateDetail.main(null);
+        });
 
         // ActionListener for the "Go to Login" button
         logoutButton.addActionListener(e -> {
