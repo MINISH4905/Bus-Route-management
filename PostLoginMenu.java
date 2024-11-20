@@ -34,6 +34,9 @@ public class PostLoginMenu {
         JButton routeDetailsButton = createMenuButton("Route Details");
         JButton bookTicketButton = createMenuButton("Book a Ticket");
         JButton updateBookingButton = createMenuButton("Update Booking");
+        JButton viewBooking = createMenuButton("View Booking");
+        JButton deleteBooking = createMenuButton("Delete Booking");
+        JButton Check = createMenuButton("Members");
         JButton logoutButton = createMenuButton("Logout");
 
         // Arrange the buttons
@@ -49,6 +52,15 @@ public class PostLoginMenu {
         panel.add(updateBookingButton, gbc);
 
         gbc.gridy = 4;
+        panel.add(viewBooking, gbc);
+
+        gbc.gridy = 5;
+        panel.add(deleteBooking, gbc);
+
+        gbc.gridy = 6;
+        panel.add(Check, gbc);
+
+        gbc.gridy = 7;
         panel.add(logoutButton, gbc);
 
         // Add button actions
@@ -68,6 +80,22 @@ public class PostLoginMenu {
             // Replace with appropriate functionality
             BookingRoutesJoin.open();
         });
+
+        viewBooking.addActionListener(e -> {
+            menuFrame.dispose();
+            ViewBookingDetails.open(); // Display route details from the database
+        });
+
+        deleteBooking.addActionListener(e -> {
+            menuFrame.dispose();
+            DeleteBooking.open(); // Display route details from the database
+        });
+
+        Check.addActionListener(e -> {
+            menuFrame.dispose();
+            PrintMembers.main(null);// Display route details from the database
+        });
+
 
         // ActionListener for the "Go to Login" button
         logoutButton.addActionListener(e -> {
