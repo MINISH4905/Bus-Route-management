@@ -5,13 +5,13 @@ import javax.swing.*;
 public class PostLoginMenu {
 
     // Database connection details
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/busroute"; // Replace with your DB URL
+    private static final String DB_URL = "jdbc:mysql://localhost:3306/bus"; // Replace with your DB URL
     private static final String DB_USER = "root"; // Replace with your DB username
     private static final String DB_PASSWORD = "moni2626"; // Replace with your DB password
 
     public static void showMenu() {
         // Create the menu frame
-        JFrame menuFrame = new JFrame("Post-Login Menu");
+        JFrame menuFrame = new JFrame("Main Menu");
         menuFrame.setSize(450, 400);
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         menuFrame.setLocationRelativeTo(null);
@@ -21,7 +21,7 @@ public class PostLoginMenu {
         panel.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
 
         // Title label
-        JLabel menuTitleLabel = new JLabel("Welcome to the Post-Login Menu", JLabel.CENTER);
+        JLabel menuTitleLabel = new JLabel("Welcome to the Main Menu", JLabel.CENTER);
         menuTitleLabel.setFont(new Font("Segoe UI", Font.BOLD, 20));
         menuTitleLabel.setForeground(new Color(0, 122, 204));
         gbc.gridx = 0;
@@ -48,19 +48,17 @@ public class PostLoginMenu {
         gbc.gridy = 2;
         panel.add(bookTicketButton, gbc);
 
-        gbc.gridy = 3;
-        panel.add(updateBookingButton, gbc);
 
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         panel.add(viewBooking, gbc);
 
-        gbc.gridy = 5;
+        gbc.gridy = 4;
         panel.add(deleteBooking, gbc);
 
-        gbc.gridy = 6;
+        gbc.gridy = 5;
         panel.add(Check, gbc);
 
-        gbc.gridy = 7;
+        gbc.gridy = 6;
         panel.add(logoutButton, gbc);
 
         // Add button actions
@@ -75,11 +73,6 @@ public class PostLoginMenu {
             TicketBooking.open();
         });
 
-        updateBookingButton.addActionListener(e -> {
-            menuFrame.dispose();
-            // Replace with appropriate functionality
-            BookingRoutesJoin.open();
-        });
 
         viewBooking.addActionListener(e -> {
             menuFrame.dispose();
